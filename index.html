@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Wacky Watch</title>
+  <link rel="preload" as="image" href="/img/wacky_watch_off.png">
+  <link rel="preload" as="image" href="/img/wacky_watch.png">
+  <script src="https://cdn.jsdelivr.net/npm/image-map-resizer@latest/js/imageMapResizer.min.js"></script>
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      overflow: hidden;
+      background: #000;
+      color: #fff;
+    }
+    a {
+      color: #fff;
+    }
+    .watch-container {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+    }
+    .watch-container img {
+      position: absolute;
+      top: 0; left: 0;
+      object-fit: contain;
+    }
+    #currentImage {
+      z-index: 1;
+      height: 48vh;
+      width: 26vw;
+      top: 48.5vh;
+      left: 49.5vw;
+      transform: translate(-50%, -50%);
+    }
+    .watch-overlay {
+      z-index: 3;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .watch-overlay.off {
+      display: none;
+    }
+    area[alt="Power"] { cursor: pointer; }
+    .switch-overlay {
+      height: auto;
+      width: 45.5vw;
+      top: 48.5vh !important;
+      left: 49vw !important;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      display: block;
+    }
+    .upload-form {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: rgba(0,0,0,0.6);
+      padding: 10px 15px;
+      border-radius: 8px;
+    }
+
+    .hamburger {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 20;
+      width: 24px;
+      height: 18px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+    .hamburger span {
+      display: block;
+      width: 100%;
+      height: 3px;
+      background: #fff;
+      border-radius: 2px;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    .hamburger.open span:nth-child(1) {
+      transform: translateY(7.5px) rotate(45deg);
+    }
+    .hamburger.open span:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger.open span:nth-child(3) {
+      transform: translateY(-7.5px) rotate(-45deg);
+    }
+
+    .side-panel {
+      position: fixed;
+      top: 0;
+      right: -320px;
+      width: 300px;
+      height: 100vh;
+      z-index: 15;
+      background: rgba(20, 20, 20, 0.95);
+      color: #ccc;
+      padding: 70px 20px 20px;
+      overflow-y: auto;
+      transition: right 0.3s ease;
+      border-left: 1px solid #333;
+    }
+    .side-panel.open {
+      right: 0;
+    }
+    .side-panel h2 {
+      color: #fff;
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+    }
+    .side-panel p {
+      font-size: 0.85rem;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .side-panel p.small {
+      font-size: 0.65rem;
+      line-height: 1.1;
+      margin-bottom: 3px;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <div class="side-panel" id="sidePanel">
+    <h2>My Wacky Watch</h2>
+    <p>A website largely inspired by the official <a href="https://www.thewackywatch.com/" target="_blank" rel="noopener">Wacky Watch website</a>.</p>
+    <p>Send your images and display them on the watch. Everything is done in your browser.</p>
+    <p>This website is created by <a href="https://greep.fr/" target="_blank" rel="noopener">Greep</a>. The Wacky Watch is part of The Amazing Digital Circus.</p>
+    <p>The Amazing Digital Circus is a creaton of <a href="https://www.glitchprod.com/" target="_blank" rel="noopener">Glitch Productions</a> and Gooseworx.</p>
+    <p>This website is not affiliated with Glitch Productions nor Gooseworx.</p>
+    <p><a class="github-button" href="https://github.com/GreepTheSheep/my-wackywatch" data-color-scheme="no-preference: dark; light: dark; dark: dark;" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star GreepTheSheep/my-wackywatch on GitHub">Star</a></p>
+    <p><script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support me on Ko-fi', '#73cef5', 'Y4Q82232HD');kofiwidget2.draw();</script></p>
+  </div>
+
+  <div class="watch-container" id="watchContainer">
+    <img id="watchOn" class="watch-overlay" src="/img/wacky_watch.png" alt="Wacky Watch" usemap="#watch-map" draggable="false">
+    <img id="watchOff" class="watch-overlay off" src="/img/wacky_watch_off.png" alt="Wacky Watch" usemap="#watch-map" draggable="false">
+    <img id="currentImage" src="" alt="Image" draggable="false">
+    <img class="switch-overlay" id="switchGif" src="/img/switch.gif" alt="Transition" draggable="false">
+
+    <map name="watch-map">
+      <area shape="circle" coords="1738,337,62" alt="Power" title="Power">
+    </map>
+  </div>
+
+  <div class="upload-form">
+    <input type="file" id="fileInput" title="set image to display" accept="image/png,image/jpeg,image/gif,image/webp" />
+  </div>
+
+  <script>
+    imageMapResize();
+
+    const currentImage = document.getElementById('currentImage');
+    const switchGif = document.getElementById('switchGif');
+    const fileInput = document.getElementById('fileInput');
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const sidePanel = document.getElementById('sidePanel');
+    const watchOn = document.getElementById('watchOn');
+    const watchOff = document.getElementById('watchOff');
+
+    const acceptedMimeTypes = fileInput.accept.split(",");
+
+    document.getElementById('watchContainer').addEventListener('click', (e) => {
+      if (e.target.matches('area[alt="Power"]')) {
+        e.preventDefault();
+        watchOn.classList.toggle('off');
+        watchOff.classList.toggle('off');
+      }
+    });
+
+    hamburgerBtn.addEventListener('click', () => {
+      hamburgerBtn.classList.toggle('open');
+      sidePanel.classList.toggle('open');
+    });
+
+    function playTransition(newSrc) {
+      switchGif.style.display = 'block';
+      currentImage.src = newSrc;
+      currentImage.onload = () => {
+        if (currentImage.naturalWidth > currentImage.naturalHeight) {
+          currentImage.style.width = '45.5vw';
+          currentImage.style.height = 'auto';
+          currentImage.style.maxHeight = '48vh';
+          currentImage.style.objectFit = 'contain';
+        } else {
+          currentImage.style.width = '26vw';
+          currentImage.style.height = '48vh';
+          currentImage.style.maxHeight = '';
+          currentImage.style.objectFit = 'contain';
+        }
+        setTimeout(() => {
+          switchGif.style.display = 'none';
+        }, 700);
+      };
+    }
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length == 1 && acceptedMimeTypes.includes(fileInput.files[0].type)) {
+        playTransition(URL.createObjectURL(fileInput.files[0]));
+      }
+    });
+  </script>
+</body>
+</html>
