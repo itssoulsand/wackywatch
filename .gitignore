@@ -1,0 +1,87 @@
+# ==========================================
+# Byte-compiled / optimized / DLL files
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ==========================================
+# Virtual Environments (Crucial to ignore)
+# ==========================================
+.venv/
+venv/
+ENV/
+env/
+target/
+.python-version
+
+# ==========================================
+# Environment variables and Secrets
+# ==========================================
+.env
+.env.local
+.env.*
+*.secret
+
+# ==========================================
+# Pipenv and Poetry dependency locks (Optional)
+# Remove these if you want to force lock file tracking
+# ==========================================
+# .pypoetry/
+# poetry.lock
+
+# ==========================================
+# Testing, Caches, and Coverage Reports
+# ==========================================
+.htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# ==========================================
+# Distribution and Packaging
+# ==========================================
+bin/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ==========================================
+# Jupyter Notebook Checkpoints
+# ==========================================
+.ipynb_checkpoints
+
+# ==========================================
+# IDEs and Text Editors
+# ==========================================
+# VS Code
+.vscode/
+
+# PyCharm / IntelliJ
+.idea/
+
+# Finder (macOS) / Explorer (Windows)
+.DS_Store
+Thumbs.db
