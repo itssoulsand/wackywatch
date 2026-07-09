@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wacky Watch</title>
+  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+  <link rel="preload" as="image" href="/static/img/wacky_watch_off.png">
+  <link rel="preload" as="image" href="/static/img/wacky_watch.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/image-map-resizer@latest/js/imageMapResizer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@3.0.2/dist/iconify-icon.min.js"></script>
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Raleway', sans-serif;
+      margin: 0;
+      overflow: hidden;
+      background: #000;
+      color: #fff;
+    }
+    a { color: #fff; }
+    .preloader {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    .preloader p {
+      color: #fff;
+      font-size: 1.5rem;
+    }
+    .watch-container {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .watch-container img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .watch-overlay {
+      z-index: 5;
+    }
+    .watch-overlay.off {
+      display: none;
+    }
+    .screen {
+      position: relative;
+      width: 50vw;
+      height: 50vh;
+      overflow: hidden;
+      z-index: 3;
+      border-radius: 2vw;
+      flex-shrink: 0;
+      margin-left: 0.5vw;
+      margin-right: 4.5vh;
+      margin-bottom: 4vh;
+    }
+    #currentImage {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      background: #000;
+    }
+    #currentImage.loaded {
+      opacity: 1;
+    }
+    #switchGif {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 2vw;
+      z-index: 4;
+      display: none;
+    }
+    area[alt="Power"] { cursor: pointer; }
+    .upload-form {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      border-radius: 8px;
+    }
+    .upload-form label {
+      display: inline-block;
+      padding: 12px 24px;
+      background: rgba(39, 39, 39, 0.31);
+      border-radius: 16px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(9.9px);
+      -webkit-backdrop-filter: blur(9.9px);
+      border: 1px solid rgba(51, 51, 51, 0.56);
+      color: #ffffff;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s;
+    }
+    .upload-form label iconify-icon {
+      width: 20px;
+      height: 20px;
+      vertical-align: middle;
+    }
+    .upload-form label:hover {
+      border: 1px solid rgba(105, 105, 105, 0.56);
+      transform: scale(0.975);
+    }
+    .hamburger {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 20;
+      width: 24px;
+      height: 18px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+    .hamburger span {
+      display: block;
+      width: 100%;
+      height: 3px;
+      background: #fff;
+      border-radius: 2px;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    .hamburger.open span:nth-child(1) {
+      transform: translateY(7.5px) rotate(45deg);
+    }
+    .hamburger.open span:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger.open span:nth-child(3) {
+      transform: translateY(-7.5px) rotate(-45deg);
+    }
+    .side-panel {
+      position: fixed;
+      top: 0;
+      right: -320px;
+      width: 300px;
+      height: max-content;
+      z-index: 15;
+      background: rgba(39, 39, 39, 0.31);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(9.9px);
+      -webkit-backdrop-filter: blur(9.9px);
+      border: 1px solid rgba(51, 51, 51, 0.56);
+      color: #ccc;
+      padding: 2rem 1rem 1rem;
+      border-radius: 0 0 0 1rem;
+      overflow-y: auto;
+      transition: right 0.3s ease;
+      border-left: 1px solid #333;
+    }
+    .side-panel.open {
+      right: 0;
+    }
+    .side-panel h2 {
+      color: #fff;
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+    }
+    .side-panel p {
+      font-size: 0.85rem;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .side-panel p.small {
+      font-size: 0.65rem;
+      line-height: 1.1;
+      margin-bottom: 3px;
+    }
+    @media (max-aspect-ratio: 1/1) {
+      .screen {
+        width: 70vw;
+        height: 50vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="preloader" id="preloader">
+    <p>Loading...</p>
+  </div>
+  <button class="hamburger" id="hamburgerBtn" aria-label="Menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  <div class="side-panel" id="sidePanel">
+    <h2>Wacky Watch</h2>
+    <p>
+      <strong>Wacky Watch</strong> is a simulator of those very watches from the series 
+      <a href="https://www.glitchprod.com/" target="_blank" rel="noopener">The Amazing Digital Circus</a>.
+      Upload any images and see them appear on the screen.
+    </p>
+    <p>
+      This website is a <strong>fork</strong> of the 
+      <a href="https://greep.fr/" target="_blank" rel="noopener">GreepTheSheep</a> project with new features.
+    </p>
+    <p>
+      The original series <em>The Amazing Digital Circus</em> was created by 
+      <a href="https://www.glitchprod.com/" target="_blank" rel="noopener">Glitch Productions</a> 
+      and artist Gooseworx. This website is not affiliated with them and is a non‑commercial fan project.
+    </p>
+    <p>
+      <a class="github-button" 
+        href="https://github.com/itssoulsand/wackywatch" 
+        data-color-scheme="no-preference: dark; light: dark; dark: dark;" 
+        data-icon="octicon-star" 
+        data-size="large" 
+        data-show-count="true" 
+        aria-label="Star itssoulsand/wackywatch on GitHub">
+        Star
+      </a>
+    </p>
+  </div>
+  <div class="watch-container" id="watchContainer">
+    <div class="screen" id="screen">
+      <img id="currentImage" src="/api/get_image" alt="Image" draggable="false">
+      <img id="switchGif" src="/static/img/switch.gif" alt="Transition" draggable="false">
+    </div>
+    <img id="watchOn" class="watch-overlay" src="/static/img/wacky_watch.png" alt="Wacky Watch" usemap="#watch-map" draggable="false">
+    <img id="watchOff" class="watch-overlay off" src="/static/img/wacky_watch_off.png" alt="Wacky Watch" usemap="#watch-map" draggable="false">
+    <map name="watch-map">
+      <area shape="circle" coords="1738,337,62" alt="Power" title="Power">
+    </map>
+  </div>
+  <div class="upload-form">
+    <label for="fileInput">
+      <iconify-icon icon="material-symbols:upload-rounded"></iconify-icon> Upload Image
+    </label>
+    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+  </div>
+  <script>
+    imageMapResize();
+    const preloader = document.getElementById('preloader');
+    const watchOn = document.getElementById('watchOn');
+    const watchOff = document.getElementById('watchOff');
+    const switchGif = document.getElementById('switchGif');
+    const currentImage = document.getElementById('currentImage');
+    const fileInput = document.getElementById('fileInput');
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const sidePanel = document.getElementById('sidePanel');
+    const acceptedMimeTypes = fileInput.accept.split(",");
+
+    function showGlitch() {
+      switchGif.style.display = 'block';
+      currentImage.classList.remove('loaded');
+    }
+
+    function hideGlitch() {
+      switchGif.style.display = 'none';
+      currentImage.classList.add('loaded');
+    }
+
+    function loadImage(src) {
+      currentImage.classList.remove('loaded');
+      currentImage.src = src;
+      currentImage.onload = function() {
+        hideGlitch();
+      };
+      currentImage.onerror = function() {
+        showGlitch();
+      };
+    }
+
+    function checkPreloader() {
+      if (watchOn.complete && watchOff.complete && switchGif.complete) {
+        preloader.style.display = 'none';
+        loadImage('/api/get_image');
+      } else {
+        setTimeout(checkPreloader, 100);
+      }
+    }
+    checkPreloader();
+
+    document.getElementById('watchContainer').addEventListener('click', function(e) {
+      if (e.target.matches('area[alt="Power"]')) {
+        e.preventDefault();
+        watchOn.classList.toggle('off');
+        watchOff.classList.toggle('off');
+      }
+    });
+
+    hamburgerBtn.addEventListener('click', function() {
+      hamburgerBtn.classList.toggle('open');
+      sidePanel.classList.toggle('open');
+    });
+
+    function playTransition(newSrc) {
+      switchGif.style.display = 'block';
+      currentImage.classList.remove('loaded');
+      currentImage.src = newSrc;
+      currentImage.onload = function() {
+        currentImage.classList.add('loaded');
+        setTimeout(function() {
+          switchGif.style.display = 'none';
+        }, 700);
+      };
+      currentImage.onerror = function() {
+        switchGif.style.display = 'block';
+      };
+    }
+
+    fileInput.addEventListener('change', async function() {
+      if (this.files.length === 0) return;
+      const file = this.files[0];
+      if (!file.type.startsWith('image/')) {
+        alert('Неподдерживаемый формат');
+        this.value = '';
+        return;
+      }
+      const formData = new FormData();
+      formData.append('file', file);
+
+      switchGif.style.display = 'block';
+      currentImage.classList.remove('loaded');
+
+      try {
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+        if (!response.ok) throw new Error('Ошибка сервера: ' + response.status);
+        loadImage('/api/get_image?' + Date.now());
+      } catch (e) {
+        console.error('Ошибка загрузки:', e);
+        alert('Не удалось загрузить изображение');
+        showGlitch();
+      }
+      this.value = '';
+    });
+
+    window.addEventListener('load', function() {
+      preloader.style.display = 'none';
+      if (currentImage.complete) {
+        currentImage.classList.add('loaded');
+      } else {
+        currentImage.onload = function() {
+          currentImage.classList.add('loaded');
+        };
+      }
+    });
+  </script>
+</body>
+</html>
