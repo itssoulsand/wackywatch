@@ -49,37 +49,44 @@
       justify-content: center;
       align-items: center;
     }
-    .watch-container img {
+
+    .watch-inner {
+      position: relative;
+      width: min(100vw, 100vh * 16 / 9);
+      height: min(100vh, 100vw * 9 / 16);
+    }
+
+    .watch-overlay {
       position: absolute;
-      top: 0;
-      left: 0;
+      top: 0; left: 0;
       width: 100%;
       height: 100%;
       object-fit: contain;
-    }
-    .watch-overlay {
       z-index: 5;
       pointer-events: none;
     }
     .watch-overlay.off {
       display: none;
     }
+
     .screen {
-      position: relative;
-      width: 50vw;
-      height: 50vh;
+      position: absolute;
+      top: 25.6%;
+      left: 30.39%;
+      width: 37.19%;
+      height: 44.86%;
       overflow: hidden;
       z-index: 3;
-      border-radius: 2vw;
-      flex-shrink: 0;
-      margin-left: 0.5vw;
-      margin-right: 4.5vh;
-      margin-bottom: 4vh;
+      border-radius: 2%;
+      margin: 0;
+      pointer-events: none;
     }
+
     #currentImage {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
+      object-position: center;
       opacity: 0;
       transition: opacity 0.4s ease;
       background: #000;
@@ -87,18 +94,22 @@
     #currentImage.loaded {
       opacity: 1;
     }
+
     #switchGif {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      object-fit: contain;
-      border-radius: 2vw;
+      object-fit: cover;
+      object-position: center;
+      border-radius: 2%;
       z-index: 4;
       display: none;
       pointer-events: none;
+      margin: 0;
     }
+
     area[alt="Power"] { cursor: pointer; }
     .btns {
       position: fixed;
@@ -228,12 +239,7 @@
       line-height: 1.1;
       margin-bottom: 3px;
     }
-    @media (max-aspect-ratio: 1/1) {
-      .screen {
-        width: 70vw;
-        height: 50vh;
-      }
-    }
+
   </style>
 </head>
 <body>
@@ -274,19 +280,21 @@
     </p>
   </div>
   <div class="watch-container" id="watchContainer">
-    <div class="screen" id="screen">
-      <img id="currentImage" src="/api/get_image" alt="Image" draggable="false">
-      <img id="switchGif" src="/static/img/switch.gif" alt="Transition" draggable="false">
+    <div class="watch-inner">
+      <div class="screen" id="screen">
+        <img id="currentImage" src="/api/get_image" draggable="false" alt="">
+        <img id="switchGif" src="/static/img/switch.gif" alt="Transition" draggable="false">
+      </div>
+      <img id="watchOn" class="watch-overlay" src="/static/img/wacky_watch.png" alt="Wacky Watch" usemap="#watch-map" draggable="false">
+      <img id="watchOff" class="watch-overlay off" src="/static/img/wacky_watch_off.png" alt="Wacky Watch" usemap="#watch-map" draggable="false">
+      <map name="watch-map">
+        <area shape="circle" coords="1738,337,62" alt="Power" title="Power">
+      </map>
     </div>
-    <img id="watchOn" class="watch-overlay" src="/static/img/wacky_watch.png" alt="Wacky Watch" usemap="#watch-map" draggable="false">
-    <img id="watchOff" class="watch-overlay off" src="/static/img/wacky_watch_off.png" alt="Wacky Watch" usemap="#watch-map" draggable="false">
-    <map name="watch-map">
-      <area shape="circle" coords="1738,337,62" alt="Power" title="Power">
-    </map>
   </div>
   <div class="btns">
     <label for="fileInput">
-      <iconify-icon icon="material-symbols:upload-rounded"></iconify-icon> Upload Image
+      <iconify-icon icon="material-symbols:upload-rounded"></iconify-icon> Upload
     </label>
     <button class="btn" id="downloadBtn">
       <iconify-icon icon="material-symbols:download-rounded"></iconify-icon> Download

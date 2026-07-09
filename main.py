@@ -68,7 +68,7 @@ async def upload_image(file: UploadFile = File(...)):
         buffer.write(contents)
         buffer.seek(0)
 
-    new_filename = f"{x}{ext}"
+    new_filename = f"{uuid.uuid4().hex}{ext}"
     file_path = os.path.join(UPLOADS_DIR + "/queue", new_filename)
 
     with open(file_path, "wb") as f:
