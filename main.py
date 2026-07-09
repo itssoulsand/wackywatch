@@ -3,36 +3,43 @@ from random import random
 from PIL import Image
 import io
 import uuid
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, Query
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from utils.randomimage import get_random_image
 import shutil
 
+UPLOADS_DIR = "uploads"
+
+os.makedirs(UPLOADS_DIR + "/approved", exist_ok=True)
+os.makedirs(UPLOADS_DIR + "/queue", exist_ok=True)
+
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-UPLOAD_DIR = "uploads/notmoderated"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+app.mount("/images", StaticFiles(directory="uploads/approved"), name="images")
 
 @app.get("/")
 async def read_root():
     return FileResponse("static/index.html")
 
 @app.get("/api/get_image")
-async def get_image():
+async def get_image(pathonly: bool = Query(False)):
     try:
-        file_path = await get_random_image()
+        path, filename = await get_random_image()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    image_path = f"/images/{filename}"
+    if pathonly:
+        return {"path": image_path}
     return FileResponse(
-                        file_path,
+                        path,
                         headers={
                             "Cache-Control": "no-cache, no-store, must-revalidate",
                             "Pragma": "no-cache",
-                            "Expires": "0"
+                            "Expires": "0",
+                            "X-Image-URL": image_path
                         })
-    pass
+
 
 
 @app.post("/api/upload")
@@ -61,8 +68,8 @@ async def upload_image(file: UploadFile = File(...)):
         buffer.write(contents)
         buffer.seek(0)
 
-    new_filename = f"{uuid.uuid4().hex}{ext}"
-    file_path = os.path.join(UPLOAD_DIR, new_filename)
+    new_filename = f"{x}{ext}"
+    file_path = os.path.join(UPLOADS_DIR + "/queue", new_filename)
 
     with open(file_path, "wb") as f:
         f.write(buffer.getvalue())

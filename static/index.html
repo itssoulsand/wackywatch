@@ -14,15 +14,17 @@
   <script src="https://cdn.jsdelivr.net/npm/iconify-icon@3.0.2/dist/iconify-icon.min.js"></script>
   <script async defer src="https://buttons.github.io/buttons.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Raleway', sans-serif; user-select: none; }
     body {
-      font-family: 'Raleway', sans-serif;
       margin: 0;
       overflow: hidden;
       background: #000;
       color: #fff;
     }
-    a { color: #fff; }
+    a { 
+      color: #fff;
+      text-decoration: dotted;
+    }
     .preloader {
       position: fixed;
       top: 0; left: 0;
@@ -57,6 +59,7 @@
     }
     .watch-overlay {
       z-index: 5;
+      pointer-events: none;
     }
     .watch-overlay.off {
       display: none;
@@ -94,9 +97,10 @@
       border-radius: 2vw;
       z-index: 4;
       display: none;
+      pointer-events: none;
     }
     area[alt="Power"] { cursor: pointer; }
-    .upload-form {
+    .btns {
       position: fixed;
       bottom: 20px;
       left: 50%;
@@ -107,8 +111,8 @@
       align-items: center;
       border-radius: 8px;
     }
-    .upload-form label {
-      display: inline-block;
+    .btns label, .btn {
+      display: inline-flex;
       padding: 12px 24px;
       background: rgba(39, 39, 39, 0.31);
       border-radius: 16px;
@@ -119,21 +123,32 @@
       color: #ffffff;
       border-radius: 30px;
       cursor: pointer;
+      font-size: 1rem;
       transition: all cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s;
+      gap: 0.25rem;
     }
-    .upload-form label iconify-icon {
-      width: 20px;
-      height: 20px;
+    .btns label iconify-icon, .btn iconify-icon {
+      width: 1rem;
+      height: 1rem;
       vertical-align: middle;
+      flex-shrink: 0;
+      line-height: 1;
     }
-    .upload-form label:hover {
+    .btns label:hover, .btn:hover {
       border: 1px solid rgba(105, 105, 105, 0.56);
       transform: scale(0.975);
     }
+    .btns label.disabled, .btn.disabled {
+      background: rgba(71, 71, 71, 0.466);
+      color: rgb(119, 119, 119);
+      transform: scale(0.95);
+      pointer-events: none;
+      opacity: 0.75;
+    }
     .hamburger {
       position: fixed;
-      top: 20px;
-      right: 20px;
+      top: 35px;
+      right: 35px;
       z-index: 20;
       width: 24px;
       height: 18px;
@@ -144,6 +159,8 @@
       background: none;
       border: none;
       padding: 0;
+      transform: scale(1);
+      transition: transform 0.3s ease;
     }
     .hamburger span {
       display: block;
@@ -162,10 +179,13 @@
     .hamburger.open span:nth-child(3) {
       transform: translateY(-7.5px) rotate(-45deg);
     }
+    .hamburger.hamburger.open {
+      transform: scale(0.7);
+    }
     .side-panel {
       position: fixed;
       top: 0;
-      right: -320px;
+      right: 0;
       width: 300px;
       height: max-content;
       z-index: 15;
@@ -176,13 +196,22 @@
       border: 1px solid rgba(51, 51, 51, 0.56);
       color: #ccc;
       padding: 2rem 1rem 1rem;
-      border-radius: 0 0 0 1rem;
+      margin: 1rem;
+      border-radius: 1rem;
       overflow-y: auto;
-      transition: right 0.3s ease;
+      transition: all cubic-bezier(.085, 1.335, .285, .995) 0.6s;
       border-left: 1px solid #333;
+      filter: blur(64px);
+      opacity: 0;
+      transform: scale(0.5);
+      transform-origin: top right;
+      visibility: hidden;
     }
     .side-panel.open {
-      right: 0;
+      filter: blur(0);
+      opacity: 1;
+      transform: scale(1);
+      visibility: visible;
     }
     .side-panel h2 {
       color: #fff;
@@ -255,10 +284,13 @@
       <area shape="circle" coords="1738,337,62" alt="Power" title="Power">
     </map>
   </div>
-  <div class="upload-form">
+  <div class="btns">
     <label for="fileInput">
       <iconify-icon icon="material-symbols:upload-rounded"></iconify-icon> Upload Image
     </label>
+    <button class="btn" id="downloadBtn">
+      <iconify-icon icon="material-symbols:download-rounded"></iconify-icon> Download
+    </button>
     <input type="file" id="fileInput" accept="image/*" style="display: none;">
   </div>
   <script>
@@ -272,8 +304,17 @@
     const hamburgerBtn = document.getElementById('hamburgerBtn');
     const sidePanel = document.getElementById('sidePanel');
     const acceptedMimeTypes = fileInput.accept.split(",");
-    const uploadLabel = document.querySelector('.upload-form label');
+    const uploadLabel = document.querySelector('.btns label');
     const originalLabelHTML = uploadLabel.innerHTML;
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    function updateDownloadButton() {
+      const img = document.getElementById('currentImage');
+      const hasImage = img.src && img.src !== '' && img.complete && img.naturalWidth > 0;
+      downloadBtn.classList.toggle('disabled', !hasImage);
+    }
+
+    window.addEventListener('load', updateDownloadButton);
 
     function showGlitch() {
       switchGif.style.display = 'block';
@@ -286,13 +327,13 @@
     }
 
     function loadImage(src) {
-      currentImage.classList.remove('loaded');
-      currentImage.src = src;
       currentImage.onload = function() {
         hideGlitch();
+        updateDownloadButton();
       };
       currentImage.onerror = function() {
         showGlitch();
+        updateDownloadButton();
       };
     }
 
@@ -317,6 +358,59 @@
     hamburgerBtn.addEventListener('click', function() {
       hamburgerBtn.classList.toggle('open');
       sidePanel.classList.toggle('open');
+    });
+
+    downloadBtn.addEventListener('click', async function() {
+      if (this.classList.contains('disabled')) return;
+
+      const img = document.getElementById('currentImage');
+      const src = img.src;
+
+      if (src.startsWith('blob:')) {
+        try {
+          const response = await fetch(src);
+          const blob = await response.blob();
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = 'wacky_image.png';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+        } catch (e) {
+          console.error('Download error:', e);
+          alert('Failed to download image.');
+        }
+        return;
+      }
+
+
+      try {
+        const response = await fetch(src);
+        if (!response.ok) throw new Error('Network error');
+        const blob = await response.blob();
+
+        const imageUrl = response.headers.get('X-Image-URL');
+        let filename = 'wacky_image.png';
+        if (imageUrl) {
+          const parts = imageUrl.split('/');
+          filename = parts[parts.length - 1] || 'wacky_image.png';
+        } else {
+          const ext = blob.type.split('/')[1] || 'png';
+          filename = `wacky_image.${ext}`;
+        }
+
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(link.href), 2000);
+      } catch (e) {
+        console.error('Download error:', e);
+        alert('Failed to download image.');
+      }
     });
 
     function playTransition(newSrc) {

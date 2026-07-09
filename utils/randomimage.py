@@ -2,7 +2,7 @@ import os
 import random
 from fastapi import HTTPException
 
-UPLOAD_DIR = "uploads"
+UPLOAD_DIR = "uploads/approved"
 
 async def get_random_image():
     try:
@@ -16,7 +16,7 @@ async def get_random_image():
     if not images:
         raise HTTPException(status_code=500, detail="Internal Server Error: No images found in uploads directory")
 
-    random_file = random.choice(images)
-    file_path = os.path.join(UPLOAD_DIR, random_file)
+    filename = random.choice(images)
+    path = os.path.join(UPLOAD_DIR, filename)
 
-    return file_path
+    return path, filename
