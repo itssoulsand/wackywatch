@@ -39,7 +39,7 @@ async def get_image():
 async def upload_image(file: UploadFile = File(...)):
     ext = os.path.splitext(file.filename)[1].lower()
     if ext not in ('.png', '.jpg', '.jpeg', '.gif', '.webp'):
-        raise HTTPException(400, "Неподдерживаемый формат")
+        raise HTTPException(400, "Unsupported file type")
 
     contents = await file.read()
     img = Image.open(io.BytesIO(contents))

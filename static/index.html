@@ -272,6 +272,8 @@
     const hamburgerBtn = document.getElementById('hamburgerBtn');
     const sidePanel = document.getElementById('sidePanel');
     const acceptedMimeTypes = fileInput.accept.split(",");
+    const uploadLabel = document.querySelector('.upload-form label');
+    const originalLabelHTML = uploadLabel.innerHTML;
 
     function showGlitch() {
       switchGif.style.display = 'block';
@@ -343,6 +345,8 @@
       const formData = new FormData();
       formData.append('file', file);
 
+      uploadLabel.innerHTML = 'Uploading...';
+
       switchGif.style.display = 'block';
       currentImage.classList.remove('loaded');
 
@@ -352,12 +356,14 @@
           body: formData
         });
         if (!response.ok) throw new Error('Ошибка сервера: ' + response.status);
-        loadImage('/api/get_image?' + Date.now());
+        alert('Image uploaded! It will become available to everyone after moderator approval.');
+        window.location.reload();
       } catch (e) {
         console.error('Ошибка загрузки:', e);
         alert('Не удалось загрузить изображение');
         showGlitch();
       }
+      uploadLabel.innerHTML = originalLabelHTML;
       this.value = '';
     });
 
